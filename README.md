@@ -1,9 +1,23 @@
 ## Using Docker
 
 1. [Install Docker](https://docs.docker.com/get-docker/) on your machine.
-1. Down if docker running: `docker-compose down`.
-1. Build without cache: `docker-compose build --no-cache`
-1. Build your container: `docker-compose up`.
+1. Down if docker running:
+
+```bash
+docker-compose down
+```
+
+3. Build without cache:
+
+```bash
+docker-compose build --no-cache
+```
+
+4. Build your container:
+
+```bash
+docker-compose up
+```
 
 ## Running Locally
 
