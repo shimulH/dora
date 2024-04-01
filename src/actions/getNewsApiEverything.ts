@@ -1,27 +1,31 @@
 'use server';
 
 import { api } from '@/lib/api';
-
-export const getNewsApiEverything = async (q: string) => {
-  const query = q.length ? q : 'tech';
-  console.log('aaaaaaa', query);
+import { format } from 'date-fns';
+export const getNewsApiEverything = async (queries: {
+  q: string;
+  cat: string;
+  source: string;
+}) => {
+  const { q, cat, source } = queries;
+  const query = q ? q : 'tech';
+  const nySubString = cat
+    ? `${cat}.json&api-key=${process.env.NEXT_PUBLIC_NY_TIMES_API_KEY}`
+    : `articlesearch.json?q=${query}&api-key=${process.env.NEXT_PUBLIC_NY_TIMES_API_KEY}`;
 
   const newsAPiRes = await api.get(
-    `${process.env.NEXT_PUBLIC_NEWS_API}/everything?q=${query}&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_KEY}`
+    `${process.env.NEXT_PUBLIC_NEWS_API}/everything?q=${query}&sources=${queries.source}&category=${cat}&apiKey=${process.env.NEXT_PUBLIC_NEWS_API_KEY}`
   );
   const guardianApiRes = await api.get(
-    `${process.env.NEXT_PUBLIC_GUARDIAN_API}/search?q=${query}&api-key=${process.env.NEXT_PUBLIC_GUARDIAN_API_KEY}`
+    `${process.env.NEXT_PUBLIC_GUARDIAN_API}/search?q=${query}&sections=${cat}&api-key=${process.env.NEXT_PUBLIC_GUARDIAN_API_KEY}`
   );
   const nyTimesApiRes = await api.get(
-    `${process.env.NEXT_PUBLIC_NY_TIMES_API}/articlesearch.json?q=${query}&api-key=${process.env.NEXT_PUBLIC_NY_TIMES_API_KEY}`
+    `${process.env.NEXT_PUBLIC_NY_TIMES_API}/${nySubString}`
   );
-  // console.log(res);
-  // const { slug, date, title, summary, tags } = post
 
   const newsApiData = await newsAPiRes.json();
   const guardianApiData = await guardianApiRes.json();
   const nyTimesApiData = await nyTimesApiRes.json();
-  // console.log('data--', nyTimesApiData.response.docs[0].multimedia);
 
   const nyTimesPosts = nyTimesApiData?.response?.docs
     .slice(0, 10)
@@ -33,32 +37,35 @@ export const getNewsApiEverything = async (q: string) => {
           source: article?.source ?? '',
           title: article?.headline.main ?? '',
           summary: article?.headline.content_kicker ?? '',
-          date: article?.pub_date ?? '',
+          date: format(article?.pub_date, 'yyyy-MM-dd') ?? '',
           image: imageUrl ?? '',
           url: article?.web_url ?? '',
         },
       ];
       return prev;
     }, []);
-  const guardianPosts = guardianApiData.response.results
-    .slice(0, 10)
-    .reduce((prev: any, article: any) => {
-      prev = [
-        ...prev,
-        {
-          source: article?.webUrl ?? '',
-          title: article?.webTitle ?? '',
-          summary: article?.description ?? '',
-          date: article?.webPublicationDate ?? '',
-          image: article?.urlToImage ?? '',
-          url: article?.webUrl ?? '',
-        },
-      ];
-      return prev;
-    }, []);
+
+  const guardianPosts =
+    queries.source !== 'new-york' &&
+    guardianApiData.response.results
+      .slice(0, 10)
+      .reduce((prev: any, article: any) => {
+        prev = [
+          ...prev,
+          {
+            source: article?.webUrl ?? '',
+            title: article?.webTitle ?? '',
+            summary: article?.description ?? '',
+            date: format(article?.webPublicationDate, 'yyyy-MM-dd') ?? '',
+            image: article?.urlToImage ?? '',
+            url: article?.webUrl ?? '',
+          },
+        ];
+        return prev;
+      }, []);
 
   const newsApiPosts = newsApiData.articles
-    .slice(0, 10)
+    ?.slice(0, 10)
     .reduce((prev: any, article: any) => {
       prev = [
         ...prev,
@@ -66,7 +73,7 @@ export const getNewsApiEverything = async (q: string) => {
           source: article?.source ?? '',
           title: article?.title ?? '',
           summary: article?.description ?? '',
-          date: article?.publishedAt ?? '',
+          date: format(article?.publishedAt, 'yyyy-MM-dd') ?? '',
           image: article?.urlToImage ?? '',
           url: article?.url ?? '',
         },
@@ -76,8 +83,8 @@ export const getNewsApiEverything = async (q: string) => {
   return {
     success: newsApiData.status,
     data: [
-      ...newsApiPosts,
-      ...guardianPosts,
+      ...(newsApiPosts ? newsApiPosts : []),
+      ...(guardianPosts ? guardianPosts : []),
       ...(nyTimesPosts ? nyTimesPosts : []),
     ],
   };

@@ -113,39 +113,34 @@ export type Employee = {
 
 export const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
-    href: '/dashboard',
+    title: 'Latest',
+    href: '#',
     icon: 'dashboard',
     label: 'Dashboard',
   },
   {
-    title: 'User',
-    href: '/dashboard/user',
+    title: 'Top',
+    href: '#',
     icon: 'user',
     label: 'user',
   },
-  {
-    title: 'Employee',
-    href: '/dashboard/employee',
-    icon: 'employee',
-    label: 'employee',
-  },
-  {
-    title: 'Profile',
-    href: '/dashboard/profile',
-    icon: 'profile',
-    label: 'profile',
-  },
-  {
-    title: 'Kanban',
-    href: '/dashboard/kanban',
-    icon: 'kanban',
-    label: 'kanban',
-  },
-  {
-    title: 'Login',
-    href: '/',
-    icon: 'login',
-    label: 'login',
-  },
 ];
+
+export const CATEGORIES = {
+  science: 'science',
+  sports: 'sports',
+  technology: 'technology',
+  travel: 'travel',
+  arts: 'arts',
+  automobiles: 'automobiles',
+  book_review: 'books/review',
+  business: 'business',
+  fashion: 'fashion',
+  food: 'food',
+  health: 'health',
+  home: 'home',
+  magazine: 'magazine',
+  movies: 'movies',
+  opinion: 'opinion',
+  politics: 'politics',
+};

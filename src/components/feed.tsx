@@ -1,39 +1,30 @@
-import { getNewsApiEverything } from '@/actions/getNewsApiEverything';
 import Link from '@/components/Link';
-import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
+import LoadingArticle from './loading-article';
+import { Suspense } from 'react';
+import { getNewsApiEverything } from '@/actions/getNewsApiEverything';
 
 const MAX_DISPLAY = 50;
 
-export default function Feed({
-  posts,
+export default async function Feed({
+  query,
 }: {
-  posts: {
-    data: {
-      source: string;
-      title: string;
-      summary: string;
-      date: string;
-      image: string;
-      url: string;
-    }[];
-  };
+  query: { q: string; cat: string; source: string };
 }) {
+  const posts = await getNewsApiEverything(query);
   return (
-    <ScrollArea className='h-[1000px]'>
-      <div className='flex-1 space-y-4 p-4 '>
-        <div className='divide-y divide-gray-200 dark:divide-gray-700'>
+    <div className='flex-1 space-y-4 p-4 '>
+      <div className='divide-y divide-gray-200 dark:divide-gray-700'>
+        <ScrollArea className='h-[1000px] pb-10'>
           <ul className='divide-y divide-gray-200 dark:divide-gray-700'>
             {!posts.data.length && 'No posts found.'}
             {posts.data
               .slice(0, MAX_DISPLAY)
               .filter((post) => post.title !== '[Removed]')
               .map((post: any, index: number) => {
-                // const { slug, date, title, summary, tags } = post
                 return (
                   <li
                     key={post.date}
@@ -90,8 +81,8 @@ export default function Feed({
                 );
               })}
           </ul>
-        </div>
+        </ScrollArea>
       </div>
-    </ScrollArea>
+    </div>
   );
 }
