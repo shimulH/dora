@@ -12,7 +12,6 @@ export default async function page({
 }: {
   searchParams: { q: string; cat: string; source: string };
 }) {
-  console.log(searchParams);
   return (
     <div>
       <Search />
