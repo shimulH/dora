@@ -14,9 +14,12 @@ export default async function page({
 }) {
   return (
     <div>
-      <Search />
-      <Categories />
-      <Sources />
+      <Suspense fallback={<LoadingArticle />}>
+        <Search />
+
+        <Categories />
+        <Sources />
+      </Suspense>
       <Suspense fallback={<LoadingArticle />}>
         <Feed query={searchParams} />
       </Suspense>
